@@ -9,10 +9,13 @@ import MapKit
 import UIKit
 
 class ViewController: UIViewController, MKMapViewDelegate {
-
+    var mapType: MKMapType = .hybrid
+    
     @IBOutlet weak var mapView: MKMapView!
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .organize, target: self, action: #selector(chooseMapType))
         
         let london = Capital(title: "London", coordinate: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275), info: "Home to the 2012 Summer Olympics")
         let oslo = Capital(title: "Oslo", coordinate: CLLocationCoordinate2D(latitude: 59.95, longitude: 10.75), info: "Founded over a thousand years ago.")
@@ -20,7 +23,7 @@ class ViewController: UIViewController, MKMapViewDelegate {
         let rome = Capital(title: "Rome", coordinate: CLLocationCoordinate2D(latitude: 41.9, longitude: 12.5), info: "Has a whole country inside it.")
         let washington = Capital(title: "Washington DC", coordinate: CLLocationCoordinate2D(latitude: 38.895111, longitude: -77.036667), info: "Named after George himself.")
         
-        
+        mapView.mapType = mapType
         mapView.addAnnotations([london, oslo, paris, rome, washington])
     }
     
@@ -33,7 +36,7 @@ class ViewController: UIViewController, MKMapViewDelegate {
         let identifier = "Capital"
         
         // get one annotation view if there is one in the annotation queue, nil otherwise
-        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView
         
         // make annotationView by hand if it doesn't exists
         if annotationView == nil {
@@ -49,6 +52,8 @@ class ViewController: UIViewController, MKMapViewDelegate {
             annotationView?.annotation = annotation
         }
         
+        annotationView?.markerTintColor = .green
+        
         return annotationView
     }
     
@@ -62,6 +67,30 @@ class ViewController: UIViewController, MKMapViewDelegate {
         
         present(ac, animated: true)
     }
-
+    
+    @objc func chooseMapType(sender: UIBarButtonItem) {
+        let ac = UIAlertController(title: "Map Type", message: "Choose the map type", preferredStyle: .actionSheet)
+        
+        // create custom actions
+        let standardType = UIAlertAction(title: "Standard", style: .default) { [weak self] _ in
+            self?.mapType = .standard
+            self?.mapView.mapType = .standard
+        }
+        let hybridType = UIAlertAction(title: "Hybrid", style: .default) { [weak self] _ in
+            self?.mapType = .hybrid
+            self?.mapView.mapType = .hybrid
+        }
+        let satelliteType = UIAlertAction(title: "Satellite", style: .default) { [weak self] _ in
+            self?.mapType = .satellite
+            self?.mapView.mapType = .satellite
+        }
+        
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        ac.addAction(standardType)
+        ac.addAction(hybridType)
+        ac.addAction(satelliteType)
+        
+        present(ac, animated: true)
+    }
 }
 
