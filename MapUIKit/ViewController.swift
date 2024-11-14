@@ -8,7 +8,7 @@
 import MapKit
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, MKMapViewDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
     override func viewDidLoad() {
@@ -22,6 +22,34 @@ class ViewController: UIViewController {
         
         
         mapView.addAnnotations([london, oslo, paris, rome, washington])
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: any MKAnnotation) -> MKAnnotationView? {
+        
+        // check that the annotation is a capital if not, return
+        guard annotation is Capital else { return nil }
+        
+        // set identifier to be used in Reusable Annotation dequeue
+        let identifier = "Capital"
+        
+        // get one annotation view if there is one in the annotation queue, nil otherwise
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+        
+        // make annotationView by hand if it doesn't exists
+        if annotationView == nil {
+            // create Marker Annotation and configure
+            annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            annotationView?.canShowCallout = true
+            
+            // create button and assign it to rightCalloutAccessory
+            let btn = UIButton(type: .detailDisclosure)
+            annotationView?.rightCalloutAccessoryView = btn
+        } else {
+            // Just assign annotation if annotationView already exists
+            annotationView?.annotation = annotation
+        }
+        
+        return annotationView
     }
 
 
